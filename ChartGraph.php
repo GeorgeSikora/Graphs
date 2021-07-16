@@ -40,30 +40,9 @@ class ChartGraph {
             $this->toDate = $_GET['to'];
             $this->interval = null;
         }
-        
-        $dcn = $this->dbConfig['dateCol'];
-        $this->groupBy = "YEAR($dcn), MONTH($dcn), DAY($dcn)"; 
-
-        $DateFrom   = date_create($this->fromDate);
-        $DateTo     = date_create($this->toDate);
-        $DatesDiff  = date_diff($DateFrom, $DateTo);
-        $daysDiff   = $DatesDiff->days;
-        $monthsDiff = round($daysDiff * 0.032855);
-        $yearsDiff  = round($daysDiff * 0.002738);
-        
-        if ($yearsDiff >= 1) 
-        {
-            $this->dateScaleName = "months";
-            $this->groupBy = "YEAR($dcn), MONTH($dcn)";
-        }
-        else if ($monthsDiff >= 3) 
-        {
-            $this->dateScaleName = "weeks";
-            $this->groupBy = "YEAR($dcn), MONTH($dcn), WEEK($dcn)";
-        } 
     }
 
-    function addDataset($labelName, $color, $table, $dateCol, $customDbConfig = null) {
+    function addDataset($table, $dateCol, $dsConf, $customDbConfig = null) {
 
         if ($customDbConfig != null) 
         {
@@ -83,8 +62,10 @@ class ChartGraph {
                 $this->dbConfig['database']
             );
         }
+        
+        $dcn = $dateCol;
+        $this->groupAutoscale($dcn);
 
-        $dcn     = $dateCol;
         $from    = $this->fromDate;
         $to      = $this->toDate;
         $groupBy = $this->groupBy;
@@ -108,65 +89,40 @@ class ChartGraph {
         }
 
         $dataset = [
-            "label" => $labelName,
-            "backgroundColor" => $color,
-            "borderColor" => $color,
-            "lineTension" => 0.3, // 0 - 0.3
-            "fill" => false,
             "data" => $data,
         ];
+        $dataset = array_merge($dataset, $dsConf);
         
         array_push($this->datasets, $dataset);
     }
 
-    function getGraphData() {
-        /*
-        $mysqli = new mysqli(
-            $this->dbConfig['hostname'], 
-            $this->dbConfig['username'],
-            $this->dbConfig['password'],
-            $this->dbConfig['database']
-        );
+    private function groupAutoscale($dateCol) {
 
-        $table   = $this->dbConfig['table'];
-        $dcn     = $this->dbConfig['dateCol'];
-        $from    = $this->fromDate;
-        $to      = $this->toDate;
-        $groupBy = $this->groupBy;
+        $DateFrom   = date_create($this->fromDate);
+        $DateTo     = date_create($this->toDate);
+        $DatesDiff  = date_diff($DateFrom, $DateTo);
+        $daysDiff   = $DatesDiff->days;
+        $monthsDiff = round($daysDiff * 0.032855);
+        $yearsDiff  = round($daysDiff * 0.002738);
+        
+        $dcn = $dateCol;
+        $this->groupBy = "YEAR($dcn), MONTH($dcn), DAY($dcn)"; 
 
-        $sql = "
-            SELECT $dcn, COUNT(1) as 'totalCount' 
-            FROM $table 
-            WHERE $dcn BETWEEN '$from' AND '$to'
-            GROUP BY $groupBy
-            ORDER BY $dcn
-        ";
-
-        $result = $mysqli -> query($sql);
-
-        while ($row = $result -> fetch_assoc()) {
-            //array_push($this->labels, $row[$dcn]);
-            array_push($this->data, [
-                'x' => $row[$dcn],
-                'y' => $row['totalCount'],
-            ]);
+        if ($yearsDiff >= 1) 
+        {
+            $this->dateScaleName = "months";
+            $this->groupBy = "YEAR($dcn), MONTH($dcn)";
         }
+        else if ($monthsDiff >= 3) 
+        {
+            $this->dateScaleName = "weeks";
+            $this->groupBy = "YEAR($dcn), MONTH($dcn), WEEK($dcn)";
+        }
+    }
 
-        $dataset = [
-            "label" => "Nových uživatel",
-            "backgroundColor" => "lime",
-            "borderColor" => "green",
-            "lineTension" => 0.3, // 0 - 0.3
-            "fill" => false,
-            "data" => $this->data,
-        ];
-        
-        array_push($this->datasets, $dataset);
-        
-        */
+    function getGraphData() {
 
         $graphData = [
-            //"labels" => $this->labels, 
             "datasets" => $this->datasets,
         ];
 
@@ -175,11 +131,11 @@ class ChartGraph {
         if ($this->interval)
         {
             $czechInterval = $this->timeIntervalToCzech($this->interval);
-            $graphName .= $czechInterval;
+            $graphName .= "od $czechInterval";
         }
         else 
         {
-            $graphName .= "od $from do $to";
+            //$graphName .= "od $from do $to";
         }
 
         $dateScaleCzech = $this->scaleNameToCzech($this->dateScaleName);
@@ -188,7 +144,7 @@ class ChartGraph {
         return ["graphData" => $graphData, "graphName" => $graphName];
     }
 
-    // 1month, 3year, 10days, 2week ...
+    // $interval = 1month, 3year, 10days, 2week ...
     private function timeIntervalToCzech($interval) {
 
         $splitted = preg_split('/(?<=[0-9])(?=[a-z]+)/i',$interval);
@@ -196,9 +152,9 @@ class ChartGraph {
         $timeUnit = $splitted[1];
 
         if ($timeVal == 1) {
-            $czechInterval = "předešlého ";
+            $czechInterval = "minulého ";
         } else {
-            $czechInterval = "předešlých ";
+            $czechInterval = "minulých ";
         }
         
         switch ($timeUnit) {
@@ -227,7 +183,7 @@ class ChartGraph {
         return $interval;
     }
 
-    // hours, days, weeks, months, years
+    // $scaleName = hours, days, weeks, months, years
     private function scaleNameToCzech($scaleName) {
         switch ($scaleName) {
             case 'hours':   return 'hodinách';

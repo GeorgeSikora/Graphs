@@ -61,7 +61,7 @@
             <?=createGraph("http://localhost/graphs/getGraphData.php?interval=1year")?>
         </div>
         <div style="width: 33.33%">
-            <?=createGraph("http://localhost/graphs/graphUserRegistrations.php?interval=1year")?>
+            <?=createGraph("http://localhost/graphs/graphUserRegistrations.php?interval=3month")?>
         </div>
         <div style="width: 33.33%">
             <?=createGraph("http://localhost/graphs/getGraphData.php?interval=2week")?>

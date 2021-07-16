@@ -57,7 +57,7 @@ function buildGraphFromUrl(divId, targetGraphUrl) {
                         yAxes: [{
                             ticks: {
                                 autoSkip: true,
-                                maxTicksLimit: 10,
+                                maxTicksLimit: 8,
                             },
                         }]
                     },
