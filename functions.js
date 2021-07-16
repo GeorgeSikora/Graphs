@@ -1,7 +1,9 @@
 
 function buildGraphFromUrl(divId, targetGraphUrl) {
 
-    var ctx = document.getElementById(divId).getContext('2d');
+    var ctx = $('#'+divId+' canvas')[0].getContext('2d');
+
+    $(`#${divId} .overlay`).html('Načítám...');
 
     $.ajax({
         type: "POST",
@@ -9,30 +11,37 @@ function buildGraphFromUrl(divId, targetGraphUrl) {
         data: {
 
         },
-        success: (data)=>{
+        success: (data) => {
             console.log(data);
-            
+
+            try {
+                JSON.parse(data);
+            } catch (e) {
+                $(`#${divId} .overlay`).addClass('error');
+                $(`#${divId} .overlay`).html('Data parse error <i class="fas fa-exclamation-triangle"></i>');
+                return;
+            }
+
             var dataObj = JSON.parse(data);
             var timeFormat = 'YYYY-MM-DD';
 
             console.log(dataObj);
 
+            $(`#${divId} .overlay`).html('');
             var chart = new Chart(ctx, {
 
                 type: 'line', // line / bar / radar / doughnut
             
-                data: dataObj,
+                data: dataObj.graphData,
 
                 options: {
                     spanGaps: true,
                     layout: {
                         padding: 10,
                     },
-                    plugins: {
-                        title: {
-                            display: false,
-                            text: 'Zalidnění populace',
-                        }
+                    title: {
+                        display: true,
+                        text: dataObj.graphName,
                     },
                     scales: {
                         xAxes: [{
@@ -49,6 +58,10 @@ function buildGraphFromUrl(divId, targetGraphUrl) {
                     },
                 }
             });
+        },
+        error: (XMLHttpRequest, textStatus, errorThrown) => {
+            $(`#${divId} .overlay`).addClass('error');
+            $(`#${divId} .overlay`).html('URL post error <i class="fas fa-exclamation-triangle"></i>');
         }
     });
 }
