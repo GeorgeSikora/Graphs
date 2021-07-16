@@ -181,17 +181,23 @@ class ChartGraph {
     }
 }
 
+// Konfigurace databáze
 $dbConfig = [
-    'hostname' => 'localhost',
-    'username' => 'root',
-    'password' => '',
-    'database' => 'sajkoradb',
-    'table'    => 'users',
-    'dateCol'  => 'dateCreated',
+    'hostname' => 'localhost', // IP hosta
+    'username' => 'root', // Uživatel
+    'password' => '', // Heslo
+    'database' => 'sajkoradb', // Databáze
+    'table'    => 'users', // Tabulka
+    'dateCol'  => 'dateCreated', // Sloupec s datumem
 ];
 
+// Vytvoření objektu grafu
 $cg = new ChartGraph($dbConfig);
+
+// Navrácení JSON objektu
 echo json_encode($cg->getGraphData());
+
+// Vrácení
 return;
 
 // INSERT INTO `visits` (`id`, `date`) VALUES (NULL, "2002-01-22");
