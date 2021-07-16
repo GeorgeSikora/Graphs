@@ -1,70 +1,20 @@
 <?php
 
-// 1month, 3year, 10days, 2week ...
-function timeIntervalToCzech($interval) {
-
-    $splitted = preg_split('/(?<=[0-9])(?=[a-z]+)/i',$interval);
-    $timeVal = $splitted[0];
-    $timeUnit = $splitted[1];
-
-    if ($timeVal == 1) {
-        $czechInterval = "předešlého ";
-    } else {
-        $czechInterval = "předešlých ";
-    }
-    
-    switch ($timeUnit) {
-        case 'day':
-            if ($timeVal == 1) {
-                $czechInterval .= "dne";
-            } else {
-                $czechInterval .= "$timeVal dnů";
-            }
-            return $czechInterval;
-        case 'month':
-            if ($timeVal == 1) {
-                $czechInterval .= "měsíce";
-            } else {
-                $czechInterval .= "$timeVal měsíců";
-            }
-            return $czechInterval;
-        case 'year':
-            if ($timeVal == 1) {
-                $czechInterval .= "roku";
-            } else {
-                $czechInterval .= "$timeVal let";
-            }
-            return $czechInterval;
-    }
-    return $interval;
-}
-
-// hours, days, weeks, months, years
-function intervalNameToCzech($intervalName) {
-    switch ($intervalName) {
-        case 'hours':   return 'hodinách';
-        case 'days':    return 'dnech';
-        case 'weeks':   return 'týdnech';
-        case 'months':  return 'měsících';
-        case 'years':   return 'let';
-        default: return $intervalName;
-    }
-}
-
 class ChartGraph {
 
     public $dateFormat = 'Y-m-d';
 
+    public $graphName;
     private $dbConfig;
-
     public $groupBy;
 
     public $interval = '1month';
     public $dateScaleName = 'days';
     public $fromDate, $toDate;
    
-    function __construct($dbConfig) {
+    function __construct($graphName, $dbConfig) {
 
+        $this->graphName = $graphName;
         $this->dbConfig = $dbConfig;
 
         if (isset($_GET['interval'])) 
@@ -127,23 +77,21 @@ class ChartGraph {
         $groupBy = $this->groupBy;
 
         $sql = "
-            SELECT $dcn, COUNT(1) as 'totalVisits' 
+            SELECT $dcn, COUNT(1) as 'totalCount' 
             FROM $table 
             WHERE $dcn BETWEEN '$from' AND '$to'
             GROUP BY $groupBy
             ORDER BY $dcn
         ";
 
-        //echo $sql; return;  
-
         $result = $mysqli -> query($sql);
 
         $labels = [];
-        $totalVisits = [];
+        $totalCount = [];
 
         while ($row = $result -> fetch_assoc()) {
             array_push($labels, $row[$dcn]);
-            array_push($totalVisits, $row['totalVisits']);
+            array_push($totalCount, $row['totalCount']);
         }
 
         $datasets = [
@@ -153,7 +101,7 @@ class ChartGraph {
                 "borderColor" => "green",
                 "lineTension" => 0.3, // 0 - 0.3
                 "fill" => false,
-                "data" => $totalVisits,
+                "data" => $totalCount,
             ],
         ];
 
@@ -162,11 +110,11 @@ class ChartGraph {
             "datasets" => $datasets,
         ];
 
-        $graphName = "Celkový počet návštěv ";
+        $graphName = $this->graphName.' ';
 
         if ($this->interval)
         {
-            $czechInterval = timeIntervalToCzech($this->interval);
+            $czechInterval = $this->timeIntervalToCzech($this->interval);
             $graphName .= $czechInterval;
         }
         else 
@@ -174,10 +122,61 @@ class ChartGraph {
             $graphName .= "od $from do $to";
         }
 
-        $dateIntervalCzech = intervalNameToCzech($this->dateScaleName);
-        $graphName .= ", odstup v $dateIntervalCzech";
+        $dateScaleCzech = $this->scaleNameToCzech($this->dateScaleName);
+        $graphName .= ", odstup v $dateScaleCzech";
 
         return ["graphData" => $graphData, "graphName" => $graphName];
+    }
+
+    // 1month, 3year, 10days, 2week ...
+    private function timeIntervalToCzech($interval) {
+
+        $splitted = preg_split('/(?<=[0-9])(?=[a-z]+)/i',$interval);
+        $timeVal = $splitted[0];
+        $timeUnit = $splitted[1];
+
+        if ($timeVal == 1) {
+            $czechInterval = "předešlého ";
+        } else {
+            $czechInterval = "předešlých ";
+        }
+        
+        switch ($timeUnit) {
+            case 'day':
+                if ($timeVal == 1) {
+                    $czechInterval .= "dne";
+                } else {
+                    $czechInterval .= "$timeVal dnů";
+                }
+                return $czechInterval;
+            case 'month':
+                if ($timeVal == 1) {
+                    $czechInterval .= "měsíce";
+                } else {
+                    $czechInterval .= "$timeVal měsíců";
+                }
+                return $czechInterval;
+            case 'year':
+                if ($timeVal == 1) {
+                    $czechInterval .= "roku";
+                } else {
+                    $czechInterval .= "$timeVal let";
+                }
+                return $czechInterval;
+        }
+        return $interval;
+    }
+
+    // hours, days, weeks, months, years
+    private function scaleNameToCzech($scaleName) {
+        switch ($scaleName) {
+            case 'hours':   return 'hodinách';
+            case 'days':    return 'dnech';
+            case 'weeks':   return 'týdnech';
+            case 'months':  return 'měsících';
+            case 'years':   return 'let';
+            default: return $scaleName;
+        }
     }
 }
 
@@ -192,7 +191,7 @@ $dbConfig = [
 ];
 
 // Vytvoření objektu grafu
-$cg = new ChartGraph($dbConfig);
+$cg = new ChartGraph('Název grafu', $dbConfig);
 
 // Navrácení JSON objektu
 echo json_encode($cg->getGraphData());
