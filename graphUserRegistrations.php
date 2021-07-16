@@ -11,6 +11,8 @@ class ChartGraph {
     public $interval = '1month';
     public $dateScaleName = 'days';
     public $fromDate, $toDate;
+
+    private $datasets = [];
    
     function __construct($graphName, $dbConfig) {
 
@@ -61,8 +63,64 @@ class ChartGraph {
         } 
     }
 
-    function getGraphData() {
+    function addDataset($labelName, $color, $table, $dateCol, $customDbConfig = null) {
 
+        if ($customDbConfig != null) 
+        {
+            $mysqli = new mysqli(
+                $customDbConfig['hostname'], 
+                $customDbConfig['username'],
+                $customDbConfig['password'],
+                $customDbConfig['database']
+            );
+        }
+        else
+        {
+            $mysqli = new mysqli(
+                $this->dbConfig['hostname'], 
+                $this->dbConfig['username'],
+                $this->dbConfig['password'],
+                $this->dbConfig['database']
+            );
+        }
+
+        $dcn     = $dateCol;
+        $from    = $this->fromDate;
+        $to      = $this->toDate;
+        $groupBy = $this->groupBy;
+
+        $sql = "
+            SELECT $dcn, COUNT(1) as 'totalCount' 
+            FROM $table 
+            WHERE $dcn BETWEEN '$from' AND '$to'
+            GROUP BY $groupBy
+            ORDER BY $dcn
+        ";
+
+        $result = $mysqli -> query($sql);
+        $data = [];
+
+        while ($row = $result -> fetch_assoc()) {
+            array_push($data, [
+                'x' => $row[$dcn],
+                'y' => $row['totalCount'],
+            ]);
+        }
+
+        $dataset = [
+            "label" => $labelName,
+            "backgroundColor" => $color,
+            "borderColor" => $color,
+            "lineTension" => 0.3, // 0 - 0.3
+            "fill" => false,
+            "data" => $data,
+        ];
+        
+        array_push($this->datasets, $dataset);
+    }
+
+    function getGraphData() {
+        /*
         $mysqli = new mysqli(
             $this->dbConfig['hostname'], 
             $this->dbConfig['username'],
@@ -86,28 +144,30 @@ class ChartGraph {
 
         $result = $mysqli -> query($sql);
 
-        $labels = [];
-        $totalCount = [];
-
         while ($row = $result -> fetch_assoc()) {
-            array_push($labels, $row[$dcn]);
-            array_push($totalCount, $row['totalCount']);
+            //array_push($this->labels, $row[$dcn]);
+            array_push($this->data, [
+                'x' => $row[$dcn],
+                'y' => $row['totalCount'],
+            ]);
         }
 
-        $datasets = [
-            [
-                "label" => "Nových uživatel",
-                "backgroundColor" => "lime",
-                "borderColor" => "green",
-                "lineTension" => 0.3, // 0 - 0.3
-                "fill" => false,
-                "data" => $totalCount,
-            ],
+        $dataset = [
+            "label" => "Nových uživatel",
+            "backgroundColor" => "lime",
+            "borderColor" => "green",
+            "lineTension" => 0.3, // 0 - 0.3
+            "fill" => false,
+            "data" => $this->data,
         ];
+        
+        array_push($this->datasets, $dataset);
+        
+        */
 
         $graphData = [
-            "labels" => $labels, 
-            "datasets" => $datasets,
+            //"labels" => $this->labels, 
+            "datasets" => $this->datasets,
         ];
 
         $graphName = $this->graphName.' ';
@@ -181,7 +241,7 @@ class ChartGraph {
 }
 
 // Konfigurace databáze
-$dbConfig = [
+$dbConfigLocal = [
     'hostname' => 'localhost', // IP hosta
     'username' => 'root', // Uživatel
     'password' => '', // Heslo
@@ -190,8 +250,22 @@ $dbConfig = [
     'dateCol'  => 'dateCreated', // Sloupec s datumem
 ];
 
+// Konfigurace databáze
+$dbConfig = [
+    'hostname' => '185.221.124.205', // IP hosta
+    'username' => '', // Uživatel
+    'password' => '', // Heslo
+    'database' => 'sajkoradb', // Databáze
+    'table'    => 'users', // Tabulka
+    'dateCol'  => 'dateCreated', // Sloupec s datumem
+];
+
 // Vytvoření objektu grafu
 $cg = new ChartGraph('Název grafu', $dbConfig);
+
+// tabulka, název sloupce s datem
+$cg->addDataset('Nových uživatel','orange', 'users', 'dateCreated');
+$cg->addDataset('Nových uživatel z lokalu', 'lime', 'users', 'dateCreated', $dbConfigLocal);
 
 // Navrácení JSON objektu
 echo json_encode($cg->getGraphData());
