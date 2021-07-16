@@ -15,7 +15,7 @@
     <style>
         body {
             font-family: Tahoma, sans-serif;
-            background: #fff; /* #1D1F20 */
+            background: #1D1F20; /* #1D1F20 */
             padding: 16px;
         }
 

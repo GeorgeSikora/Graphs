@@ -21,7 +21,7 @@ $cg = new ChartGraph('Název grafu', $dbConfig);
 
 // Přidání nového datasetu (dat grafu)
 $cg->addDataset('users', 'dateCreated', [
-    'label' => 'Nových uživatel',
+    'label' => 'Návštěvnost',
     'backgroundColor' => 'pink',
     'borderColor' => 'purple',
     'lineTension' => 0.3,
