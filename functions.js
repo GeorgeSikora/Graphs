@@ -30,7 +30,7 @@ function buildGraphFromUrl(divId, targetGraphUrl) {
             $(`#${divId} .overlay`).html('');
             var chart = new Chart(ctx, {
 
-                type: 'line', // line / bar / radar / doughnut
+                type: 'line', // line / bar / radar / doughnut / scatter
             
                 data: dataObj.graphData,
 
@@ -50,10 +50,15 @@ function buildGraphFromUrl(divId, targetGraphUrl) {
                                 minUnit: "day",
                             },
                             ticks: {
-                                autoSkip: false,
+                                autoSkip: true,
+                                maxTicksLimit: 20,
                             },
                         }],
                         yAxes: [{
+                            ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 10,
+                            },
                         }]
                     },
                 }

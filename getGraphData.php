@@ -1,10 +1,28 @@
 <?php
 
+// 1month, 3year, 10days, 2week
+function timeIntervalToCzech($interval) {
+
+    $splitted = preg_split('/(?<=[0-9])(?=[a-z]+)/i',$interval);
+    $number = $splitted[0];
+    $timeUnit = $splitted[1];
+    
+    $phrase  = "You should eat fruits, vegetables, and fiber every day.";
+    $healthy = ["fruits", "vegetables", "fiber"];
+    $yummy   = ["pizza", "beer", "ice cream"];
+
+    $newphrase = str_replace($healthy, $yummy, $phrase);
+}
+
 // INSERT INTO `visits` (`id`, `date`) VALUES (NULL, "2002-01-22");
 
+$dateColName = 'dateCreated';
 $interval = '1month';
 
-if (isset($_GET['interval'])) $interval = $_GET['interval'];
+if (isset($_GET['interval'])) 
+{
+    $interval = $_GET['interval'];
+}
 
 $now = date('Y-m-d');
 $from = date('Y-m-d', strtotime($now.' - '.$interval));
@@ -23,27 +41,39 @@ if (isset($_GET['to']))
     $interval = null;
 }
 
-$mysqli = new mysqli("localhost", "root", "", "graphs");
+$dateInterval = "days";
+$groupBy = "YEAR($dateColName), MONTH($dateColName), DAY($dateColName)"; // MONTH(date)
+
+$fromDate = date_create($from);
+$toDate = date_create($to);
+$diff = date_diff($fromDate, $toDate);
+$daysDiff = $diff->days;
+$monthsDiff = round($daysDiff * 0.032855);
+$yearsDiff = round($daysDiff * 0.002738);
+
+//echo $daysDiff . ' ... ' . $monthsDiff . ' ... ' . $yearsDiff; return;
+
+if ($yearsDiff >= 1) 
+{
+    $dateInterval = "months";
+    $groupBy = "YEAR($dateColName), MONTH($dateColName)";
+}
+else if ($monthsDiff >= 3) 
+{
+    $dateInterval = "weeks";
+    $groupBy = "YEAR($dateColName), MONTH($dateColName), WEEK($dateColName)";
+} 
+
+//$mysqli = new mysqli("localhost", "root", "", "graphs");
+$mysqli = new mysqli("185.221.124.205", "janek", "kokos", "sajkoradb");
 
 $sql = "
-    SELECT date, COUNT(1) as 'totalVisits' 
-    FROM visits 
-    WHERE date BETWEEN '$from' AND '$to'
-    GROUP BY date
+    SELECT $dateColName, COUNT(1) as 'totalVisits' 
+    FROM users 
+    WHERE $dateColName BETWEEN '$from' AND '$to'
+    GROUP BY $groupBy
+    ORDER BY $dateColName
 ";
-
-/*
-$sql = "
-    SET @i = -1;
-    SELECT DATE(ADDDATE('$from', INTERVAL @i:=@i+1 DAY)) AS 'date', (
-        SELECT COUNT(1)
-        FROM visits
-        WHERE DATE(ADDDATE('$from', INTERVAL @i:=@i DAY)) = date
-    ) as 'totalVisits' 
-    FROM visits 
-    HAVING @i < DATEDIFF('$to', '$from') 
-    ORDER BY `date`";
-*/
 
 //echo $sql; return;  
 
@@ -53,7 +83,7 @@ $labels = [];
 $totalVisits = [];
 
 while ($row = $result -> fetch_assoc()) {
-    array_push($labels, $row['date']);
+    array_push($labels, $row[$dateColName]);
     array_push($totalVisits, $row['totalVisits']);
 }
 
@@ -75,11 +105,13 @@ $graphData = [
 
 if ($interval)
 {
-    $graphName = "Celkový počet návštěv předešlých $interval";
+    $graphName = "Celkový počet návštěv $interval";
 }
 else 
 {
     $graphName = "Celkový počet návštěv od $from do $to";
 }
+
+$graphName .= " uskupeno odstup $dateInterval";
 
 echo json_encode(["graphData" => $graphData, "graphName" => $graphName]);

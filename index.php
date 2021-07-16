@@ -49,19 +49,22 @@
 
     <div style="display: flex">
         <div style="width: 50%">
-            <?=createGraph("http://localhost:8080/graphs/getGraphData.php?from=1990-01-01&to=2099-01-01")?>
+            <?=createGraph("http://localhost:8080/graphs/getGraphData.php?from=2000-01-01&to=2099-01-01")?>
         </div>
         <div style="width: 50%">
-            <?=createGraph("http://localhost:8080/graphs/getGraphData.phpd")?>
+            <?=createGraph("http://localhost:8080/graphs/getGraphData.php?interval=1month")?>
         </div>
     </div>
 
     <div style="display: flex">
-        <div style="width: 50%">
-            <?=createGraph("http://localhost:8080/graphs/getGraphData.php?interval=1000year")?>
+        <div style="width: 33.33%">
+            <?=createGraph("http://localhost:8080/graphs/getGraphData.php?interval=1year")?>
         </div>
-        <div style="width: 50%">
-            <?=createGraph("http://localhost:8080/graphs/getGraphData.php")?>
+        <div style="width: 33.33%">
+            <?=createGraph("http://localhost:8080/graphs/graphUserRegistrations.php?interval=400day")?>
+        </div>
+        <div style="width: 33.33%">
+            <?=createGraph("http://localhost:8080/graphs/getGraphData.php?interval=2week")?>
         </div>
     </div>
         
