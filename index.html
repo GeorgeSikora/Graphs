@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphs</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.4.1/chart.min.js"></script>
+    <style>
+        body {  
+            background: #1D1F20;
+            padding: 16px;
+        }
+
+        canvas {
+            border: 1px dotted red;
+        }
+
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 80vh;
+            width: 80vw;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="chart-container">
+        <canvas id="chart"></canvas>
+    </div>
+    
+
+<script>
+
+var ctx = document.getElementById('chart').getContext('2d');
+
+var chart = new Chart(ctx, {
+
+	type: 'line', // line / bar / radar / doughnut
+
+	data: {
+        labels: ["Jun 2016", "Jul 2016", "Aug 2016", "Sep 2016", "Oct 2016", "Nov 2016", "Dec 2016", "Jan 2017", "Feb 2017", "Mar 2017", "Apr 2017", "May 2017", "buum!"],
+        datasets: [
+            {
+                label: "Populace",
+                backgroundColor: 'yellow',
+                borderColor: 'orange',
+                lineTension: 0.3,
+                data: [26.4, 39.8, 66.8, 66.4, 40.6, 55.2, 77.4, 69.8, 57.8, 76, 110.8, 142.6, 199],
+            },
+            {
+                label: "Narození",
+                backgroundColor: 'lightblue',
+                borderColor: 'royalblue',
+                lineTension: 0.3,
+                data: [21.4, 29.8, 116.8, 463.4, 4.6, 5.2, 217.4, 169.8, 7.8, 7, 11.8, 12.6, 19],
+            },
+        ]
+	},
+
+	options: {
+        layout: {
+            padding: 10,
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Zalidnění populace',
+            }
+        },
+	}
+});
+
+</script>
+    
+</body>
+</html>

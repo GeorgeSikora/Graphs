@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphs</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.4.1/chart.min.js"></script>
+    <style>
+        body {  
+            background: #1D1F20;
+            padding: 16px;
+        }
+
+        canvas {
+            border: 1px dotted red;
+        }
+
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 80vh;
+            width: 80vw;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="chart-container">
+        <canvas id="chart"></canvas>
+    </div>
+    
+
+<script>
+
+var ctx = document.getElementById('chart').getContext('2d');
+
+var chart = new Chart(ctx, {
+
+	type: 'line', // line / bar / radar / doughnut
+
+	data: {
+        datasets: [
+            {
+                label: "Populace",
+                backgroundColor: 'yellow',
+                borderColor: 'orange',
+                lineTension: 0.3,
+            },
+            {
+                label: "Narození",
+                backgroundColor: 'lightblue',
+                borderColor: 'royalblue',
+                lineTension: 0.3,
+            },
+            {
+                label: "Úmrtí",
+                backgroundColor: 'pink',
+                borderColor: 'red',
+                lineTension: 0.3,
+            },
+            {
+                label: "Nakaženo",
+                backgroundColor: 'lightgreen',
+                borderColor: 'green',
+                lineTension: 0.3,
+            },
+        ]
+	},
+
+	// Configuration options
+	options: {
+        layout: {
+            padding: 10,
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Zalidnění populace',
+            }
+        },
+	}
+});
+
+function addData(chart, label, data) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+        var foundedLabel = data.find(({label}) => label === dataset.label);
+        if (foundedLabel != null) {
+            dataset.data.push(foundedLabel.data);
+        } else {
+            //dataset.data.push(0);
+        }
+    });
+    chart.update();
+}
+
+function limitData(chart, maxDataCount) {
+    //chart.data.labels.shift();
+    console.log(chart.data.labels);
+    if (chart.data.labels.length > maxDataCount) {
+        chart.data.labels.shift();
+    }
+
+    chart.data.datasets.forEach((dataset) => {
+        if (dataset.data.length > maxDataCount) {
+            dataset.data.shift();
+        }
+    });
+    chart.update();
+}
+
+Math.randomBetween = function(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
+}
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
+Date.prototype.addDay = function() {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + 1);
+    return date;
+}
+
+var date = new Date();
+
+var population = 2;
+var deaths = 0, borns = 0, infected = 0;
+
+function nextDay() {
+
+    deaths = 0;
+    borns = 0;
+    infected = 0;
+
+    // Katastrofa
+    deaths += Math.randomBetween(0, 200) == 0 ? Math.randomBetween(20, 200) : 0;
+    
+    // Nehoda
+    deaths += Math.randomBetween(0, 20) == 0 ? 1 : 0;
+    
+    // Dvojitá sebevražda
+    deaths += Math.randomBetween(0, 50) == 0 ? 2 : 0;
+    
+    // Běžná smrt
+    deaths += Math.randomBetween(0, population * 0.55);
+
+    // Hromadná vražda
+    deaths += Math.randomBetween(0, 100) == 0 ? 10 : 0;
+    
+    // Narození
+    borns += Math.randomBetween(0, population * 1.001);
+
+    // V případě že je úmrtí větší než populace s novými potomky, úmrtí se odpustí !
+    if (deaths >= population + borns) {
+        deaths = 0;
+    }
+
+    // Změna populace vlivem úmrtí a narozením
+    population += borns - deaths;
+    
+    // Nastane další den 🌙
+    date = date.addDay();
+
+    logDayInGraph();
+}
+
+function logDayInGraph() {   
+    // Informace se promítnou opici za monitorem 📊
+    limitData(chart, 30);
+    addData(chart, date.toLocaleDateString(), [
+        {
+            label: "Populace", data: population
+        },
+        {
+            label: "Narození", data: borns
+        },
+        {
+            label: "Úmrtí", data: deaths
+        },
+        {
+            label: "Nakaženo", data: infected
+        },
+    ]);
+}
+
+for (var i = 0; i < 30; i++) {
+    nextDay();
+}
+
+setInterval(() => {
+    nextDay();
+}, 3000);
+
+</script>
+    
+</body>
+</html>
