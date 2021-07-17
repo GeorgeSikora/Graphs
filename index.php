@@ -15,7 +15,7 @@
     <style>
         body {
             font-family: Tahoma, sans-serif;
-            background: #1D1F20; /* #1D1F20 */
+            background: #fff; /* #1D1F20 */
             padding: 16px;
         }
 
@@ -47,27 +47,28 @@
 </head>
 <body>
 
+
     <div style="display: flex">
         <div style="width: 50%">
-            <?=createGraph("http://localhost/graphs/getGraphData.php?from=2000-01-01&to=2099-01-01")?>
+            <?=createGraph("http://localhost/graphs/graphPageVisits.php?interval=1month")?>
         </div>
         <div style="width: 50%">
-            <?=createGraph("http://localhost/graphs/getGraphData.php?interval=1month")?>
+            <?=createGraph("http://localhost/graphs/graphPageVisits.php?interval=1day")?>
+        </div>
+    </div>
+    
+    <div style="display: flex">
+        <div style="width: 33.33%">
+            <?=createGraph("http://localhost/graphs/graphPageVisits.php?show=browser")?>
+        </div>
+        <div style="width: 33.33%">
+            <?=createGraph("http://localhost/graphs/graphPageVisits.php?show=platform")?>
+        </div>
+        <div style="width: 33.33%">
+            <?=createGraph("http://localhost/graphs/graphPageVisits.php?show=method")?>
         </div>
     </div>
 
-    <div style="display: flex">
-        <div style="width: 33.33%">
-            <?=createGraph("http://localhost/graphs/getGraphData.php?interval=1year")?>
-        </div>
-        <div style="width: 33.33%">
-            <?=createGraph("http://localhost/graphs/graphUserRegistrations.php?interval=3month")?>
-        </div>
-        <div style="width: 33.33%">
-            <?=createGraph("http://localhost/graphs/getGraphData.php?interval=2week")?>
-        </div>
-    </div>
-        
 </body>
 </html>
 

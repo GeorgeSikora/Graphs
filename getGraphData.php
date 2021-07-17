@@ -65,7 +65,7 @@ else if ($monthsDiff >= 3)
 } 
 
 //$mysqli = new mysqli("localhost", "root", "", "graphs");
-$mysqli = new mysqli("185.221.124.205", "janek", "kokos", "sajkoradb");
+$mysqli = new mysqli("185.221.124.205", "", "", "sajkoradb");
 
 $sql = "
     SELECT $dateColName, COUNT(1) as 'totalVisits' 

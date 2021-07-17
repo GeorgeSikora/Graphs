@@ -30,7 +30,7 @@ function buildGraphFromUrl(divId, targetGraphUrl) {
             $(`#${divId} .overlay`).html('');
             var chart = new Chart(ctx, {
 
-                type: 'line', // line / bar / radar / doughnut / scatter
+                type: dataObj.graphType, // line / bar / radar / doughnut / scatter
             
                 data: dataObj.graphData,
 

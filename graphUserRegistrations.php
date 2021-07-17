@@ -17,7 +17,7 @@ $dbConfig = [
 ];
 
 // vytvoření objektu grafu
-$cg = new ChartGraph('Název grafu', $dbConfig);
+$cg = new ChartGraph('line', 'Název grafu', $dbConfig);
 
 // Přidání nového datasetu (dat grafu)
 $cg->addDataset('users', 'dateCreated', [
