@@ -28,7 +28,7 @@ function buildGraphFromUrl(divId, targetGraphUrl) {
             console.log(dataObj);
 
             $(`#${divId} .overlay`).html('');
-            var chart = new Chart(ctx, {
+            var chartSettings = {
 
                 type: dataObj.graphType, // line / bar / radar / doughnut / scatter
             
@@ -43,26 +43,31 @@ function buildGraphFromUrl(divId, targetGraphUrl) {
                         display: true,
                         text: dataObj.graphName,
                     },
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                minUnit: "day",
-                            },
-                            ticks: {
-                                autoSkip: true,
-                                maxTicksLimit: 20,
-                            },
-                        }],
-                        yAxes: [{
-                            ticks: {
-                                autoSkip: true,
-                                maxTicksLimit: 8,
-                            },
-                        }]
-                    },
                 }
-            });
+            };
+            
+            if (dataObj.graphType == 'line') {
+                chartSettings.options.scales = {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            minUnit: "hour",
+                        },
+                        ticks: {
+                            autoSkip: false,
+                            maxTicksLimit: 20,
+                        },
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 8,
+                        },
+                    }]
+                };
+            }
+
+            var chart = new Chart(ctx, chartSettings);
         },
         error: (XMLHttpRequest, textStatus, errorThrown) => {
             $(`#${divId} .overlay`).addClass('error');

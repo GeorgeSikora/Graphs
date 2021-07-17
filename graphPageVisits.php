@@ -3,8 +3,8 @@
 // konfigurace databáze č.2
 $dbConfig = [
     'hostname' => '185.221.124.205', // IP hosta
-    'username' => '', // Uživatel
-    'password' => '', // Heslo
+    'username' => 'janek', // Uživatel
+    'password' => 'kokos', // Heslo
     'database' => 'sajkoradb', // Databáze
 ];
 
@@ -19,9 +19,7 @@ switch ($show)
         $cg ->setType('doughnut')
             ->addDataset('visits', 'browser', [
             'label' => 'požadavků',
-            'backgroundColor' => [
-                '#42BFDD', '#F7B2B7', '#559CAD', '#DE639A', '#084B83', '#4A5899', '#F7717D'
-            ],
+            'backgroundColor' => getRandomColors(),
             'borderColor' => '#222',
             'borderWidth' => 1,
             'lineTension' => 0.3,
@@ -33,7 +31,7 @@ switch ($show)
             ->addDataset('visits', 'platform', [
             'label' => 'požadavků',
             'backgroundColor' => [
-                '#DE639A', '#084B83', '#4A5899', '#F7717D', '#42BFDD', '#F7B2B7', '#559CAD'
+                '#DE639A', '#084B83', '#4A5899', '#F7B2B7', '#42BFDD', '#F7B2B7', '#F7717D'
             ],
             'borderColor' => '#222',
             'borderWidth' => 1,
@@ -46,7 +44,7 @@ switch ($show)
             ->addDataset('visits', 'method', [
             'label' => 'požadavků',
             'backgroundColor' => [
-                '#84A9C0', '#B3CBB9'
+                '#84A9C0', '#B3CBB9', '#F7717D'
             ],
             'borderColor' => '#222',
             'borderWidth' => 1,
@@ -86,7 +84,7 @@ switch ($show)
             'label' => 'Načtených požadavků',
             'backgroundColor' => 'yellow',
             'borderColor' => 'orange',
-            'lineTension' => 0.3,
+            'lineTension' => 0.2,
             'fill' => false,
         ]);
 
@@ -96,7 +94,7 @@ switch ($show)
             'label' => 'GET požadavků',
             'backgroundColor' => 'green',
             'borderColor' => 'lime',
-            'lineTension' => 0.3,
+            'lineTension' => 0.2,
             'fill' => false,
         ]);
 
@@ -106,7 +104,7 @@ switch ($show)
             'label' => 'POST požadavků',
             'backgroundColor' => 'darkred',
             'borderColor' => 'red',
-            'lineTension' => 0.3,
+            'lineTension' => 0.2,
             'fill' => false,
         ]);
         break;

@@ -1,5 +1,12 @@
 <?php
 
+function getRandomColors() 
+{
+    $colors = ['#DFFF00', '#FF7F50', '#DE3163', '#9FE2BF', '#40E0D0', '#6495ED', '#CCCCFF'];
+    shuffle($colors);
+    return $colors;
+}
+
 class ChartGraph {
 
     public $dateFormat = 'Y-m-d H:m:s';
@@ -89,7 +96,8 @@ class ChartGraph {
             ";
         }
         else
-        {
+        { 
+            // [TODO]: přidat sloupec s datumem, jako proměnnou, dle toho selektovat
             $sql = "
                 SELECT $tc, COUNT($tc) as 'totalCount'
                 FROM $table 
@@ -132,7 +140,7 @@ class ChartGraph {
         return $this;
     }
 
-    private function groupAutoscale($dateCol) {
+    private function groupAutoscale($targetCol) {
 
         $DateFrom   = date_create($this->fromDate);
         $DateTo     = date_create($this->toDate);
@@ -141,32 +149,32 @@ class ChartGraph {
         $monthsDiff = round($daysDiff * 0.032855);
         $yearsDiff  = round($daysDiff * 0.002738);
         
-        $dcn = $dateCol;
+        $tc = $targetCol;
 
         if ($yearsDiff >= 1) 
         {
             $this->dateScaleName = "months";
-            $this->sqlGroupBy = "YEAR($dcn), MONTH($dcn)";
+            $this->sqlGroupBy = "YEAR($tc), MONTH($tc)";
         }
         else if ($monthsDiff >= 3) 
         {
             $this->dateScaleName = "weeks";
-            $this->sqlGroupBy = "YEAR($dcn), MONTH($dcn), WEEK($dcn)";
+            $this->sqlGroupBy = "YEAR($tc), MONTH($tc), WEEK($tc)";
         }
         else if ($daysDiff >= 14) 
         {
             $this->dateScaleName = "days";
-            $this->sqlGroupBy = "YEAR($dcn), MONTH($dcn), WEEK($dcn), DAY($dcn)";
+            $this->sqlGroupBy = "YEAR($tc), MONTH($tc), WEEK($tc), DAY($tc)";
         }
         else if ($daysDiff >= 3) 
         {
             $this->dateScaleName = "hours";
-            $this->sqlGroupBy = "YEAR($dcn), MONTH($dcn), WEEK($dcn), DAY($dcn), HOUR($dcn)";
+            $this->sqlGroupBy = "YEAR($tc), MONTH($tc), WEEK($tc), DAY($tc), HOUR($tc)";
         }
         else 
         {
             $this->dateScaleName = "minutes";
-            $this->sqlGroupBy = "YEAR($dcn), MONTH($dcn), DAY($dcn), HOUR($dcn), MINUTE($dcn)"; 
+            $this->sqlGroupBy = "YEAR($tc), MONTH($tc), DAY($tc), HOUR($tc), MINUTE($tc)"; 
         }
     }
 
@@ -186,7 +194,9 @@ class ChartGraph {
         }
         else 
         {
-            //$graphName .= "od $from do $to";
+            $from = $this->fromDate;
+            $to = $this->toDate;
+            $graphName .= "od $from do $to";
         }
 
         if ($this->type == 'line')
@@ -243,6 +253,13 @@ class ChartGraph {
                     $czechInterval .= "dne";
                 } else {
                     $czechInterval .= "$timeVal dnů";
+                }
+                return $czechInterval;
+            case 'week':
+                if ($timeVal == 1) {
+                    $czechInterval .= "týdne";
+                } else {
+                    $czechInterval .= "$timeVal týdnů";
                 }
                 return $czechInterval;
             case 'month':

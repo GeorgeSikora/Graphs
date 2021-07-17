@@ -24,7 +24,7 @@
         }
 
         .chartGraph canvas {
-            border: 1px dotted #886600;
+            border: 1px dotted #888; /* #886600 */
             width: 100%;
             height: 100%;
         }
@@ -53,7 +53,7 @@
             <?=createGraph("http://localhost/graphs/graphPageVisits.php?interval=1month")?>
         </div>
         <div style="width: 50%">
-            <?=createGraph("http://localhost/graphs/graphPageVisits.php?interval=1day")?>
+            <?=createGraph("http://localhost/graphs/graphPageVisits.php?interval=1week")?>
         </div>
     </div>
     
